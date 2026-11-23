@@ -1,0 +1,26 @@
+{
+  "threads": [
+    {
+      "id": "1300000000000000006", "type": 11, "guild_id": "111111111111111111", "parent_id": "300000000000000001",
+      "name": "Diskuse k vláknu", "owner_id": "700000000000000001", "message_count": 12, "total_message_sent": 12,
+      "member_count": 3, "last_message_id": "1300000000000000101", "flags": 0,
+      "thread_metadata": { "archived": false, "archive_timestamp": "2026-11-20T13:01:00.000000+00:00", "locked": false, "create_timestamp": "2026-11-20T13:01:00.000000+00:00" }
+    },
+    {
+      "id": "1290000000000000001", "type": 11, "guild_id": "111111111111111111", "parent_id": "300000000000000001",
+      "name": "Staré archivované", "owner_id": "700000000000000002", "message_count": 40, "total_message_sent": 41,
+      "member_count": 5, "last_message_id": "1291000000000000000", "flags": 0,
+      "thread_metadata": { "archived": true, "archive_timestamp": "2026-06-01T10:00:00.000000+00:00", "locked": true }
+    },
+    {
+      "id": "1290000000000000002", "type": 12, "guild_id": "111111111111111111", "parent_id": "300000000000000001",
+      "name": "Soukromé", "owner_id": "700000000000000003", "message_count": 3, "flags": 0,
+      "thread_metadata": { "archived": false, "archive_timestamp": "2026-11-01T10:00:00.000000+00:00", "locked": false }
+    }
+  ],
+  "members": [
+    { "id": "1300000000000000006", "user_id": "700000000000000001", "join_timestamp": "2026-11-20T13:01:00.000000+00:00", "flags": 1 }
+  ],
+  "has_more": true,
+  "total_results": 7
+}

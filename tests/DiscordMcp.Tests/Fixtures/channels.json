@@ -1,0 +1,50 @@
+[
+  {
+    "id": "300000000000000000", "type": 4, "guild_id": "111111111111111111", "name": "Obecné", "position": 0,
+    "parent_id": null, "flags": 0, "permission_overwrites": []
+  },
+  {
+    "id": "300000000000000001", "type": 0, "guild_id": "111111111111111111", "name": "obecny", "position": 0,
+    "parent_id": "300000000000000000", "topic": "Hlavní kanál", "nsfw": false, "last_message_id": "1300000000000000011",
+    "flags": 0, "permission_overwrites": []
+  },
+  {
+    "id": "300000000000000002", "type": 2, "guild_id": "111111111111111111", "name": "Hlasový", "position": 1,
+    "parent_id": "300000000000000000", "nsfw": false, "last_message_id": "1299000000000000000", "flags": 0,
+    "permission_overwrites": []
+  },
+  {
+    "id": "300000000000000003", "type": 15, "guild_id": "111111111111111111", "name": "forum", "position": 2,
+    "parent_id": "300000000000000000", "topic": "Dotazy", "nsfw": false, "last_message_id": "1298000000000000000",
+    "flags": 0, "permission_overwrites": [],
+    "available_tags": [ { "id": "600000000000000001", "name": "vyřešeno" } ]
+  },
+  {
+    "id": "300000000000000004", "type": 5, "guild_id": "111111111111111111", "name": "oznameni", "position": 3,
+    "parent_id": null, "nsfw": false, "last_message_id": "1297000000000000000", "flags": 0,
+    "permission_overwrites": [
+      { "id": "111111111111111111", "type": 0, "allow": "0", "deny": "65536" }
+    ]
+  },
+  {
+    "id": "300000000000000005", "type": 0, "guild_id": "111111111111111111", "name": "moderatori", "position": 4,
+    "parent_id": null, "nsfw": false, "last_message_id": "1296000000000000000", "flags": 0,
+    "permission_overwrites": [
+      { "id": "111111111111111111", "type": 0, "allow": "0", "deny": "1024" },
+      { "id": "500000000000000002", "type": 0, "allow": "1024", "deny": "0" }
+    ]
+  },
+  {
+    "id": "300000000000000006", "type": 0, "guild_id": "111111111111111111", "name": "___hidden___", "position": 5,
+    "parent_id": null, "flags": 131072,
+    "permission_overwrites": [ { "id": "111111111111111111", "type": 0, "allow": "0", "deny": "1024" } ]
+  },
+  {
+    "id": "300000000000000007", "type": 20, "guild_id": "111111111111111111", "name": "neznamy-typ", "position": 6,
+    "parent_id": null, "flags": 0, "permission_overwrites": []
+  },
+  {
+    "id": "300000000000000008", "type": 0, "guild_id": "111111111111111111", "name": "nsfw", "position": 7,
+    "parent_id": null, "nsfw": true, "last_message_id": "1295000000000000000", "flags": 0, "permission_overwrites": []
+  }
+]

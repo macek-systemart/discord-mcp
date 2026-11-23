@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/DiscordMcp/DiscordMcp.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/DiscordMcp.Tests/DiscordMcp.Tests.csproj" />
+  </Folder>
+</Solution>

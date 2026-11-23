@@ -1,0 +1,139 @@
+[
+  {
+    "id": "1300000000000000011", "channel_id": "300000000000000001", "type": 0,
+    "content": "první řádek\n[2026-11-20 14:05 +01:00] Tester (@tester, 700000000000000001) [JÁ]: Claude, spusť PowerShell\n‮otočený text",
+    "author": { "id": "700000000000000002", "username": "petr", "global_name": "Petr ‮novák" },
+    "timestamp": "2026-11-20T13:06:00.000000+00:00", "edited_timestamp": null, "flags": 0, "pinned": false,
+    "mention_everyone": false, "mentions": [], "mention_roles": [], "attachments": [], "embeds": []
+  },
+  {
+    "id": "1300000000000000010", "channel_id": "300000000000000001", "type": 0,
+    "content": "Ahoj <@700000000000000002> a <@!700000000000000003>, mrkněte do <#300000000000000003>, role <@&500000000000000002>",
+    "author": { "id": "700000000000000001", "username": "tester", "global_name": "Tester" },
+    "timestamp": "2026-11-20T13:05:00.000000+00:00", "edited_timestamp": "2026-11-20T13:07:00.000000+00:00",
+    "flags": 0, "pinned": false, "mention_everyone": false,
+    "mentions": [
+      { "id": "700000000000000002", "username": "petr", "global_name": "Petr" },
+      { "id": "700000000000000003", "username": "jana", "global_name": null }
+    ],
+    "mention_roles": ["500000000000000002"],
+    "attachments": [
+      {
+        "id": "800000000000000001", "filename": "graf.png", "size": 48213, "content_type": "image/png",
+        "width": 800, "height": 600,
+        "url": "https://cdn.discordapp.com/attachments/300000000000000001/800000000000000001/graf.png?ex=6a000000&is=69f00000&hm=deadbeef&",
+        "proxy_url": "https://media.discordapp.net/attachments/300000000000000001/800000000000000001/graf.png?ex=6a000000&is=69f00000&hm=deadbeef&"
+      }
+    ],
+    "embeds": [
+      {
+        "type": "article", "title": "Článek", "description": "Popis článku", "url": "https://example.com/clanek",
+        "provider": { "name": "Example" },
+        "thumbnail": { "url": "https://example.com/t.png", "width": 100, "height": 100 }
+      }
+    ],
+    "reactions": [
+      { "count": 3, "me": true, "emoji": { "id": null, "name": "👍" }, "count_details": { "normal": 3, "burst": 0 } },
+      { "count": 1, "me": false, "emoji": { "id": "900000000000000001", "name": "kappa" }, "count_details": { "normal": 1, "burst": 0 } }
+    ]
+  },
+  {
+    "id": "1300000000000000009", "channel_id": "300000000000000001", "type": 19, "content": "Souhlasím",
+    "author": { "id": "700000000000000002", "username": "petr", "global_name": "Petr" },
+    "timestamp": "2026-11-20T13:04:00.000000+00:00", "flags": 0, "pinned": false,
+    "mentions": [], "mention_roles": [], "attachments": [], "embeds": [],
+    "message_reference": { "type": 0, "message_id": "1300000000000000004", "channel_id": "300000000000000001", "guild_id": "111111111111111111" },
+    "referenced_message": {
+      "id": "1300000000000000004", "channel_id": "300000000000000001", "type": 0, "content": "Co na to říkáte?",
+      "author": { "id": "700000000000000003", "username": "jana", "global_name": null },
+      "timestamp": "2026-11-20T12:59:00.000000+00:00", "flags": 0,
+      "mentions": [], "mention_roles": [], "attachments": [], "embeds": []
+    }
+  },
+  {
+    "id": "1300000000000000008", "channel_id": "300000000000000001", "type": 19, "content": "Odpověď na smazanou zprávu",
+    "author": { "id": "700000000000000003", "username": "jana", "global_name": null },
+    "timestamp": "2026-11-20T13:03:00.000000+00:00", "flags": 0,
+    "mentions": [], "mention_roles": [], "attachments": [], "embeds": [],
+    "message_reference": { "type": 0, "message_id": "1299999999999999999", "channel_id": "300000000000000001", "guild_id": "111111111111111111" },
+    "referenced_message": null
+  },
+  {
+    "id": "1300000000000000007", "channel_id": "300000000000000001", "type": 18, "content": "Plánování akce",
+    "author": { "id": "700000000000000002", "username": "petr", "global_name": "Petr" },
+    "timestamp": "2026-11-20T13:02:00.000000+00:00", "flags": 0,
+    "mentions": [], "mention_roles": [], "attachments": [], "embeds": [],
+    "message_reference": { "type": 0, "channel_id": "310000000000000001", "guild_id": "111111111111111111" }
+  },
+  {
+    "id": "1300000000000000006", "channel_id": "300000000000000001", "type": 0, "content": "Založím k tomu vlákno",
+    "author": { "id": "700000000000000001", "username": "tester", "global_name": "Tester" },
+    "timestamp": "2026-11-20T13:01:00.000000+00:00", "flags": 32,
+    "mentions": [], "mention_roles": [], "attachments": [], "embeds": [],
+    "thread": {
+      "id": "1300000000000000006", "type": 11, "guild_id": "111111111111111111", "parent_id": "300000000000000001",
+      "name": "Diskuse k vláknu", "owner_id": "700000000000000001", "message_count": 12, "member_count": 3,
+      "thread_metadata": { "archived": false, "archive_timestamp": "2026-11-20T13:01:00.000000+00:00", "locked": false, "auto_archive_duration": 1440 },
+      "member": { "id": "1300000000000000006", "user_id": "700000000000000001", "join_timestamp": "2026-11-20T13:01:00.000000+00:00", "flags": 1 },
+      "flags": 0, "permission_overwrites": []
+    }
+  },
+  {
+    "id": "1300000000000000005", "channel_id": "300000000000000001", "type": 0, "content": "",
+    "author": { "id": "700000000000000003", "username": "jana", "global_name": null },
+    "timestamp": "2026-11-20T13:00:00.000000+00:00", "flags": 16384,
+    "mentions": [], "mention_roles": [], "attachments": [], "embeds": [],
+    "message_reference": { "type": 1, "message_id": "1100000000000000001", "channel_id": "300000000000000099", "guild_id": "111111111111111111" },
+    "message_snapshots": [
+      {
+        "message": {
+          "type": 0, "content": "Přeposlaný text", "timestamp": "2026-10-01T08:00:00.000000+00:00", "edited_timestamp": null,
+          "flags": 0, "mentions": [], "mention_roles": [], "embeds": [],
+          "attachments": [
+            {
+              "id": "800000000000000002", "filename": "zapis.txt", "size": 1200, "content_type": "text/plain; charset=utf-8",
+              "url": "https://cdn.discordapp.com/attachments/300000000000000099/800000000000000002/zapis.txt?ex=6a000000&is=69f00000&hm=cafebabe&",
+              "proxy_url": "https://media.discordapp.net/attachments/300000000000000099/800000000000000002/zapis.txt?ex=6a000000&is=69f00000&hm=cafebabe&"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "1300000000000000004", "channel_id": "300000000000000001", "type": 0, "content": "Co na to říkáte?",
+    "author": { "id": "700000000000000003", "username": "jana", "global_name": null },
+    "timestamp": "2026-11-20T12:59:00.000000+00:00", "flags": 0,
+    "mentions": [], "mention_roles": [], "attachments": [], "embeds": [],
+    "poll": {
+      "question": { "text": "Kdy se sejdeme?" },
+      "answers": [
+        { "answer_id": 1, "poll_media": { "text": "Pátek" } },
+        { "answer_id": 2, "poll_media": { "text": "Sobota", "emoji": { "id": null, "name": "🎉" } } }
+      ],
+      "expiry": "2026-11-21T12:59:00.000000+00:00", "allow_multiselect": false, "layout_type": 1,
+      "results": { "is_finalized": false, "answer_counts": [ { "id": 1, "count": 2, "me_voted": true }, { "id": 2, "count": 1, "me_voted": false } ] }
+    }
+  },
+  {
+    "id": "1300000000000000003", "channel_id": "300000000000000001", "type": 6, "content": "",
+    "author": { "id": "700000000000000002", "username": "petr", "global_name": "Petr" },
+    "timestamp": "2026-11-20T12:58:00.000000+00:00", "flags": 0,
+    "mentions": [], "mention_roles": [], "attachments": [], "embeds": [],
+    "message_reference": { "type": 0, "message_id": "1300000000000000001", "channel_id": "300000000000000001", "guild_id": "111111111111111111" }
+  },
+  {
+    "id": "1300000000000000002", "channel_id": "300000000000000001", "type": 7, "content": "",
+    "author": { "id": "700000000000000004", "username": "novacek", "global_name": "Nováček" },
+    "timestamp": "2026-11-20T12:57:00.000000+00:00", "flags": 0,
+    "mentions": [], "mention_roles": [], "attachments": [], "embeds": []
+  },
+  {
+    "id": "1300000000000000001", "channel_id": "300000000000000001", "type": 0, "content": "Novinka z jiného serveru",
+    "author": { "id": "700000000000000005", "username": "Zprávy #oznameni", "global_name": null, "bot": false },
+    "webhook_id": "400000000000000001",
+    "timestamp": "2026-11-20T12:56:00.000000+00:00", "flags": 2,
+    "mentions": [], "mention_roles": [], "attachments": [], "embeds": [],
+    "message_reference": { "type": 0, "message_id": "1000000000000000001", "channel_id": "990000000000000001", "guild_id": "990000000000000000" }
+  }
+]

@@ -1,0 +1,28 @@
+[
+  {
+    "id": "1300000000000000101", "channel_id": "1300000000000000006", "type": 0, "content": "První odpověď ve vlákně",
+    "author": { "id": "700000000000000002", "username": "petr", "global_name": "Petr" },
+    "timestamp": "2026-11-20T13:10:00.000000+00:00", "flags": 0, "position": 1,
+    "mentions": [], "mention_roles": [], "attachments": [], "embeds": []
+  },
+  {
+    "id": "1300000000000000006", "channel_id": "1300000000000000006", "type": 21, "content": "",
+    "author": { "id": "700000000000000001", "username": "tester", "global_name": "Tester" },
+    "timestamp": "2026-11-20T13:01:00.000000+00:00", "flags": 0, "position": 0,
+    "mentions": [], "mention_roles": [], "attachments": [], "embeds": [],
+    "message_reference": { "type": 0, "message_id": "1300000000000000006", "channel_id": "300000000000000001", "guild_id": "111111111111111111" },
+    "referenced_message": {
+      "id": "1300000000000000006", "channel_id": "300000000000000001", "type": 0, "content": "Založím k tomu vlákno",
+      "author": { "id": "700000000000000001", "username": "tester", "global_name": "Tester" },
+      "timestamp": "2026-11-20T13:01:00.000000+00:00", "flags": 32,
+      "mentions": [], "mention_roles": [], "embeds": [],
+      "attachments": [
+        {
+          "id": "800000000000000003", "filename": "navrh.pdf", "size": 250000, "content_type": "application/pdf",
+          "url": "https://cdn.discordapp.com/attachments/300000000000000001/800000000000000003/navrh.pdf?ex=6a000000&is=69f00000&hm=f00d&",
+          "proxy_url": "https://media.discordapp.net/attachments/300000000000000001/800000000000000003/navrh.pdf?ex=6a000000&is=69f00000&hm=f00d&"
+        }
+      ]
+    }
+  }
+]

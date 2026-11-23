@@ -1,0 +1,13 @@
+bin/
+obj/
+publish/
+.vs/
+*.user
+TestResults/
+# secrets / runtime state never belong in the repo
+*.dat
+state.json
+.env
+
+# agent worktrees
+.claude/

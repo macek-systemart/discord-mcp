@@ -1,0 +1,11 @@
+{
+  "id": "111111111111111111",
+  "name": "Testovací server",
+  "description": null,
+  "owner_id": "700000000000000009",
+  "roles": [
+    { "id": "111111111111111111", "name": "@everyone", "permissions": "66560", "position": 0, "managed": false },
+    { "id": "500000000000000001", "name": "Člen", "permissions": "0", "position": 1, "managed": false },
+    { "id": "500000000000000002", "name": "Moderátor", "permissions": "17179869184", "position": 2, "managed": false }
+  ]
+}

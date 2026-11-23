@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>DiscordMcp</AssemblyName>
+    <RootNamespace>DiscordMcp</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ModelContextProtocol" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" />
+    <PackageReference Include="Microsoft.Extensions.Http" />
+    <PackageReference Include="System.Security.Cryptography.ProtectedData" />
+    <PackageReference Include="PdfPig" />
+    <PackageReference Include="System.Drawing.Common" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="DiscordMcp.Tests" />
+  </ItemGroup>
+
+</Project>
