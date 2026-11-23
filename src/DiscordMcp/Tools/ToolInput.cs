@@ -24,14 +24,15 @@ internal static class ToolInput
 
     public static ulong? OptionalId(string? raw, string name) => string.IsNullOrWhiteSpace(raw) ? null : Id(raw, name);
 
-    public static ulong? Cursor(string? raw, string name)
+    /// <param name="upperBound">True for <c>before</c>; see <see cref="Snowflake.TryParseCursor"/>.</param>
+    public static ulong? Cursor(string? raw, string name, bool upperBound = false)
     {
         if (string.IsNullOrWhiteSpace(raw))
         {
             return null;
         }
 
-        return Snowflake.TryParseCursor(raw, out var id)
+        return Snowflake.TryParseCursor(raw, out var id, upperBound)
             ? id
             : throw BadRequest(Languages.Current.CursorParameterInvalid(name));
     }

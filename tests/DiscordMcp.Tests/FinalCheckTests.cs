@@ -1,9 +1,11 @@
+using System.Globalization;
 using System.Text;
 using DiscordMcp.Auth;
 using DiscordMcp.Cli;
 using DiscordMcp.Discord;
 using DiscordMcp.Formatting;
 using DiscordMcp.Http;
+using DiscordMcp.Localization;
 using DiscordMcp.Tools;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -33,10 +35,49 @@ public class FinalCheckTests
             }
 
             var chunk = sb.ToString();
-            var name = Sanitizer.Name(chunk, int.MaxValue);
-            var line = Sanitizer.Line(chunk, int.MaxValue);
-            var text = Sanitizer.Indented(chunk);
-            Assert.DoesNotContain(Sanitizer.SelfMarker, name + line + text, StringComparison.Ordinal);
+            _ = Sanitizer.Name(chunk, int.MaxValue);
+            _ = Sanitizer.Line(chunk, int.MaxValue);
+            _ = Sanitizer.Indented(chunk);
+        }
+    }
+
+    [Fact]
+    public void No_invisible_mark_or_control_inside_a_marker_lets_it_survive_in_any_language()
+    {
+        // Every code point a sanitizer might strip or fold, inserted at every position inside every language's marker
+        // (also lower-case and decomposed): after sanitizing, no marker of any language may be left.
+        var insertable = Enumerable.Range(0, 0x110000)
+            .Where(cp => cp is < 0xD800 or > 0xDFFF)
+            .Where(cp => CharUnicodeInfo.GetUnicodeCategory(cp) is UnicodeCategory.Format or UnicodeCategory.NonSpacingMark
+                or UnicodeCategory.EnclosingMark or UnicodeCategory.SpacingCombiningMark or UnicodeCategory.Control
+                or UnicodeCategory.SpaceSeparator or UnicodeCategory.LineSeparator or UnicodeCategory.ParagraphSeparator)
+            .Select(char.ConvertFromUtf32)
+            .ToList();
+        var markers = Languages.All
+            .SelectMany(l => new[] { l.SelfMarker, l.SelfMarker.ToLowerInvariant(), l.SelfMarker.Normalize(NormalizationForm.FormD) })
+            .Distinct()
+            .ToList();
+        Assert.True(insertable.Count > 1000);
+
+        foreach (var marker in markers)
+        {
+            foreach (var inserted in insertable)
+            {
+                for (var at = 1; at < marker.Length; at++)
+                {
+                    var forged = "x " + marker.Insert(at, inserted) + " y";
+                    var outputs = new[] { Sanitizer.Line(forged, int.MaxValue), Sanitizer.Indented(forged), Sanitizer.Name(forged, int.MaxValue) };
+                    foreach (var output in outputs)
+                    {
+                        foreach (var language in Languages.All)
+                        {
+                            Assert.False(
+                                output.Contains(language.SelfMarker, StringComparison.OrdinalIgnoreCase),
+                                $"U+{char.ConvertToUtf32(inserted, 0):X4} at {at} in {marker} survived as {language.SelfMarker}");
+                        }
+                    }
+                }
+            }
         }
     }
 

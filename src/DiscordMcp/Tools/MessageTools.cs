@@ -33,7 +33,7 @@ public sealed class MessageTools(
         runner.RunAsync("read_messages", async ct =>
         {
             var id = ToolInput.Id(channel_id, "channel_id");
-            var olderThan = ToolInput.Cursor(before, "before");
+            var olderThan = ToolInput.Cursor(before, "before", upperBound: true);
             var newerThan = ToolInput.Cursor(after, "after");
             var center = ToolInput.Cursor(around, "around");
             if ((olderThan is null ? 0 : 1) + (newerThan is null ? 0 : 1) + (center is null ? 0 : 1) > 1)
@@ -119,7 +119,7 @@ public sealed class MessageTools(
                 ChannelId = ToolInput.OptionalId(channel_id, "channel_id"),
                 Has = hasValues,
                 MinId = ToolInput.Cursor(after, "after"),
-                MaxId = ToolInput.Cursor(before, "before"),
+                MaxId = ToolInput.Cursor(before, "before", upperBound: true),
                 SortBy = sortBy,
                 SortOrder = sortOrder,
                 Offset = offset ?? 0,
@@ -157,7 +157,7 @@ public sealed class MessageTools(
         runner.RunAsync("list_pins", async ct =>
         {
             var id = ToolInput.Id(channel_id, "channel_id");
-            DateTimeOffset? pinnedBefore = ToolInput.Cursor(before, "before") is { } cursor ? Snowflake.ToTimestamp(cursor) : null;
+            DateTimeOffset? pinnedBefore = ToolInput.Cursor(before, "before", upperBound: true) is { } cursor ? Snowflake.ToTimestamp(cursor) : null;
             await resolver.ResolveReadableAsync(id, ct).ConfigureAwait(false);
             var guild = await context.GetAsync(ct).ConfigureAwait(false);
             var pins = await api.GetPinsAsync(id, pinnedBefore, 50, ct).ConfigureAwait(false);
