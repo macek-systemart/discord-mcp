@@ -56,9 +56,15 @@ jobs:
           REF_NAME: ${{ github.ref_name }}
           PUBLISH_INPUT: ${{ inputs.publish }}
         run: |
-          # A self-contained publish bundles the .NET runtime that ships with the installed SDK.
-          $runtime = "$(dotnet msbuild src/DiscordMcp -getProperty:BundledNETCoreAppPackageVersion)".Trim()
-          if ($runtime -cnotmatch '^\d+\.\d+\.\d+$') { throw "Unexpected .NET runtime version '$runtime'." }
+          # The .NET runtime the self-contained exe will bundle: the runtime pack a win-x64 restore downloads.
+          dotnet restore src/DiscordMcp -r win-x64 -p:SelfContained=true | Out-Null
+          if ($LASTEXITCODE -ne 0) { throw 'dotnet restore failed.' }
+          $assets = Get-Content src/DiscordMcp/obj/project.assets.json -Raw | ConvertFrom-Json
+          $pack = $assets.project.frameworks.PSObject.Properties.Value.downloadDependencies |
+            Where-Object name -eq 'Microsoft.NETCore.App.Runtime.win-x64' | Select-Object -First 1
+          if ($pack.version -cmatch '^\[(\d+\.\d+\.\d+),') { $runtime = $Matches[1] }
+          else { throw "No .NET runtime pack in the win-x64 restore (found '$($pack.version)')." }
+          Write-Host ".NET runtime to bundle: $runtime"
 
           $publish = 'false'
           $skip = 'false'
