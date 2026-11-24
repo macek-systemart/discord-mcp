@@ -1,0 +1,43 @@
+# Dependency updates. NuGet minor and patch updates that pass CI are merged automatically (ci.yml), and the weekly
+# release (release.yml) ships them. Major updates and GitHub Actions updates wait for a human. Security updates skip
+# the cooldown.
+version: 2
+updates:
+  - package-ecosystem: nuget
+    directory: /
+    schedule:
+      interval: weekly
+      day: wednesday
+      time: "03:00"
+      timezone: Europe/Prague
+    open-pull-requests-limit: 10
+    cooldown:
+      default-days: 7  # a version must be a week old: time for a compromised release to be caught and pulled
+    commit-message:
+      prefix: deps
+    ignore:
+      # These follow the target framework (net10.0, LTS); moving to the next .NET is a deliberate change, not a bump.
+      - dependency-name: "Microsoft.Extensions.*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "System.*"
+        update-types: ["version-update:semver-major"]
+    groups:
+      tests:
+        patterns: ["xunit*", "Microsoft.NET.Test.Sdk", "Microsoft.Extensions.TimeProvider.Testing"]
+        update-types: [minor, patch]
+      dotnet:
+        patterns: ["Microsoft.Extensions.*", "System.*"]
+        update-types: [minor, patch]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+      timezone: Europe/Prague
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: ci
+    groups:
+      actions:
+        patterns: ["*"]
