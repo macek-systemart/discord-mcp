@@ -56,19 +56,29 @@ language.
 - For anything security-relevant, describe the threat you considered: sanitizer, guards, child processes, token
   handling.
 
-## Releasing
+## Automation
 
-Releases are built by [`release.yml`](.github/workflows/release.yml) on a GitHub Windows runner, never on a
-maintainer's machine.
+All of this runs on GitHub's Windows runners, never on a maintainer's machine.
 
-1. **Dry run.** Actions → **Release** → **Run workflow** on `main`. It runs the tests, publishes the self-contained
-   single-file exe and smoke-tests it offline with [`smoke-test.ps1`](.github/scripts/smoke-test.ps1): usage text,
-   both parser child processes and an MCP session, with an empty data folder so nothing can reach Discord. It does not
-   create a release.
-2. **Version.** Set `<Version>` in `Directory.Build.props` to the new version, so local builds report it too.
-3. **Tag.** `git tag v1.2.3` on that commit and `git push origin v1.2.3`. A tag with a suffix, such as `v1.2.3-rc.1`,
-   becomes a prerelease. The workflow runs the same steps, then attests build provenance for the zip and the exe and
-   creates the GitHub release with the zip and its `.sha256`. The release text comes from
-   [`.github/release-notes.md`](.github/release-notes.md), followed by notes generated from the commits.
-4. **Dependencies.** When a bundled package or its version changes, update `THIRD-PARTY-NOTICES.txt`. It ships in
-   the zip.
+- **CI** ([`ci.yml`](.github/workflows/ci.yml)) runs on every pull request. It runs the tests, publishes the
+  self-contained single-file exe and smoke-tests it offline with [`smoke-test.ps1`](.github/scripts/smoke-test.ps1):
+  usage text, both parser child processes and an MCP session, with an empty data folder so nothing can reach Discord.
+- **Dependabot** ([`dependabot.yml`](.github/dependabot.yml)) checks NuGet packages every Wednesday and GitHub
+  Actions monthly.
+  - A new version is only proposed once it is at least a week old. Security updates come right away.
+  - NuGet minor and patch updates that pass CI are merged automatically, exactly the commit that was tested.
+  - Major updates and Actions updates stay open for a human. Majors of `Microsoft.Extensions.*` and `System.*` are
+    ignored, because they follow the target framework.
+- **Releases** ([`release.yml`](.github/workflows/release.yml)):
+  - **Every Thursday** it releases the next patch version (`v0.1.0` → `v0.1.1`), but only if the exe would differ
+    from the latest release. That happens when `src/` or the package versions changed, or when the SDK now bundles a
+    newer .NET runtime patch, which ships its security fixes. Otherwise it releases nothing.
+  - **A minor or major version** is released by hand: `git tag v0.2.0` on `main` and `git push origin v0.2.0`. A tag
+    with a suffix, such as `v0.2.0-rc.1`, becomes a prerelease.
+  - **Run workflow** in Actions → Release is a dry run, with no release. Tick **publish** to run the Thursday check
+    right away.
+  - **Every release** attests build provenance for the zip and the exe. It is published with the zip and its
+    `.sha256`. The text comes from [`.github/release-notes.md`](.github/release-notes.md), followed by the merged
+    pull requests.
+- **Local builds** report version `0.0.0-dev`; only releases carry a real version.
+- **A new bundled package** must be added to `THIRD-PARTY-NOTICES.txt`, which ships in the zip.

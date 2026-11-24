@@ -8,7 +8,7 @@
     <AnalysisLevel>latest</AnalysisLevel>
     <Deterministic>true</Deterministic>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
-    <!-- A release build overrides this from its tag (-p:Version=…). -->
-    <Version>0.1.0</Version>
+    <!-- Local builds. A release takes its version from its tag (-p:Version=…). -->
+    <Version>0.0.0-dev</Version>
   </PropertyGroup>
 </Project>

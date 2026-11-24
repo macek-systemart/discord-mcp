@@ -1,0 +1,70 @@
+name: CI
+
+# Every pull request: the tests, then the self-contained exe a release would ship, smoke-tested offline.
+# Dependabot's NuGet minor and patch updates that pass are merged straight away; the weekly release ships them.
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: windows-latest  # net10.0-windows: DPAPI, and the tests start the Windows exe
+    timeout-minutes: 20
+    env:
+      DOTNET_NOLOGO: true
+      DOTNET_CLI_TELEMETRY_OPTOUT: true
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73 # v6.1.0
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Test
+        run: dotnet test DiscordMcp.slnx -c Release
+
+      - name: Publish
+        run: >
+          dotnet publish src/DiscordMcp -c Release -r win-x64 --self-contained
+          -p:PublishSingleFile=true -p:Version=0.0.0-ci.${{ github.run_number }}
+          -o out/exe
+
+      - name: Smoke test the exe (offline)
+        shell: pwsh
+        run: ./.github/scripts/smoke-test.ps1 -Exe out/exe/DiscordMcp.exe -ExpectedVersion "0.0.0-ci.$env:GITHUB_RUN_NUMBER"
+
+  automerge:
+    needs: test
+    # Only Dependabot's own PRs, and only while Dependabot is the one who triggered this run.
+    if: github.event_name == 'pull_request' && github.event.pull_request.user.login == 'dependabot[bot]' && github.actor == 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write       # merge
+      pull-requests: write
+    steps:
+      - name: Read the update
+        id: meta
+        uses: dependabot/fetch-metadata@25dd0e34f4fe68f24cc83900b1fe3fe149efef98 # v3.1.0
+
+      # GitHub Actions updates change workflow files, which this token may not do: those are merged by hand.
+      # Exactly the commit the tests ran on: a push to the branch after that makes the merge fail.
+      - name: Merge NuGet minor and patch updates
+        if: >-
+          steps.meta.outputs.package-ecosystem == 'nuget' &&
+          (steps.meta.outputs.update-type == 'version-update:semver-minor' ||
+           steps.meta.outputs.update-type == 'version-update:semver-patch')
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: gh pr merge --squash --match-head-commit "$HEAD_SHA" "$PR_URL"

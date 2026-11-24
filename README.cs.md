@@ -255,9 +255,10 @@ dotnet publish src/DiscordMcp -c Release -o publish
 ```
 
 - **Testy** používají jen fake HTTP a syntetické fixtures. Nikdy je ani exe nepouštěj proti skutečnému Discordu.
-- **Releasy.** Push tagu `vX.Y.Z` spustí [`release.yml`](.github/workflows/release.yml): testy, self-contained
-  single-file build, offline smoke test toho exe a pak GitHub release se zipem, jeho SHA-256 a build provenance.
-  Viz [`CONTRIBUTING.md`](CONTRIBUTING.md#releasing).
+- **Automatizace.** Každý pull request spustí testy a offline smoke test release exe. Balíčky hlídá Dependabot a
+  zelené minor a patch updaty se mergují samy. Každý čtvrtek, pokud se něco změnilo, vyjde nová patch verze s build
+  provenance; jako změna se počítá i novější patch přibaleného .NET runtime. Viz
+  [`CONTRIBUTING.md`](CONTRIBUTING.md#automation).
 - **Dokumentace.** Návrhový kontrakt je v [`docs/IMPLEMENTATION.md`](docs/IMPLEMENTATION.md). Jak přispět a jak
   přidat jazyk popisuje [`CONTRIBUTING.md`](CONTRIBUTING.md).
 - **Technologie.** C# / .NET 10, oficiální SDK

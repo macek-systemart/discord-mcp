@@ -1,4 +1,4 @@
-**Windows x64, self-contained:** no .NET install needed. Česky níže.
+**Windows x64, self-contained:** bundles the .NET runtime {runtime}, so no .NET install is needed. Česky níže.
 
 1. Download `discord-mcp-{version}-win-x64.zip`, extract it to a folder of your choice, for example `C:\Tools\discord-mcp`.
 2. Verify that the exe was built by this repository's release workflow (needs the [GitHub CLI](https://cli.github.com)):
@@ -15,6 +15,8 @@ Read [Risks](https://github.com/{repo}#-risks) before you use it: it signs in wi
 Terms of Service do not allow.
 
 ### Česky
+
+Self-contained exe pro Windows x64, .NET instalovat nemusíš.
 
 1. Stáhni `discord-mcp-{version}-win-x64.zip` a rozbal ho do libovolné složky, třeba `C:\Tools\discord-mcp`.
 2. Ověř, že exe postavil release workflow tohohle repa (potřebuje [GitHub CLI](https://cli.github.com)):

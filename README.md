@@ -260,9 +260,10 @@ dotnet publish src/DiscordMcp -c Release -o publish
 ```
 
 - **Tests** use only fake HTTP and synthetic fixtures. Never point them, or the exe, at the real Discord.
-- **Releases.** Pushing a tag `vX.Y.Z` runs [`release.yml`](.github/workflows/release.yml): the tests, a
-  self-contained single-file build, an offline smoke test of that exe, then a GitHub release with the zip, its
-  SHA-256 and build provenance. See [`CONTRIBUTING.md`](CONTRIBUTING.md#releasing).
+- **Automation.** Every pull request runs the tests and an offline smoke test of the release exe. Dependabot keeps
+  the packages current, and passing minor and patch updates are merged automatically. Every Thursday, if anything
+  changed, a new patch version is released with build provenance; a newer bundled .NET runtime patch counts as a
+  change. See [`CONTRIBUTING.md`](CONTRIBUTING.md#automation).
 - **Docs.** The design contract is in [`docs/IMPLEMENTATION.md`](docs/IMPLEMENTATION.md). How to contribute, and
   how to add a language, is in [`CONTRIBUTING.md`](CONTRIBUTING.md).
 - **Stack.** C# / .NET 10, the official

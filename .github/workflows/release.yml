@@ -1,17 +1,28 @@
 name: Release
 
-# Pushing a tag vX.Y.Z (or vX.Y.Z-suffix for a prerelease) tests, builds and publishes a GitHub release with a
-# self-contained Windows x64 exe. Running the workflow by hand is a dry run: the same steps, without the release.
+# Builds the self-contained Windows x64 exe and publishes it as a GitHub release.
+# - A pushed tag vX.Y.Z (vX.Y.Z-suffix for a prerelease) releases that version.
+# - Every Thursday, or "Run workflow" with "publish" ticked: if the exe would differ from the latest release, release
+#   the next patch version. It differs when src/ or the package versions changed (merged Dependabot updates, say), or
+#   when the SDK now bundles a newer .NET runtime patch. Otherwise nothing is released.
+# - "Run workflow" without "publish" is a dry run: the same build, tests and smoke test, no release.
 on:
   push:
     tags: ['v*.*.*']
+  schedule:
+    - cron: '0 6 * * 4'  # Thursday 06:00 UTC: after .NET's Patch Tuesday and the Wednesday Dependabot run
   workflow_dispatch:
+    inputs:
+      publish:
+        description: Release the next patch version if anything changed since the latest release
+        type: boolean
+        default: false
 
 permissions:
   contents: read
 
 concurrency:
-  group: release-${{ github.ref }}
+  group: release  # one run at a time, so two runs never pick the same version
   cancel-in-progress: false
 
 jobs:
@@ -19,7 +30,7 @@ jobs:
     runs-on: windows-latest  # net10.0-windows: DPAPI, and the tests start the Windows exe
     timeout-minutes: 30
     permissions:
-      contents: write      # create the release
+      contents: write      # create the release (and its tag, for a scheduled release)
       id-token: write      # sign the build provenance
       attestations: write  # store it
     env:
@@ -28,53 +39,103 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          fetch-depth: 0  # history and tags, to compare with the latest release
           persist-credentials: false
 
       - uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73 # v6.1.0
         with:
           dotnet-version: 10.0.x
 
-      - name: Version
-        id: version
+      - name: Plan
+        id: plan
         shell: pwsh
         env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
           EVENT: ${{ github.event_name }}
           REF_NAME: ${{ github.ref_name }}
+          PUBLISH_INPUT: ${{ inputs.publish }}
         run: |
-          if ($env:EVENT -ne 'push') {
-            $version = "0.0.0-dryrun.$env:GITHUB_RUN_NUMBER"
-          } elseif ($env:REF_NAME -cmatch '^v(\d+\.\d+\.\d+(-[0-9A-Za-z.-]+)?)$') {
-            $version = $Matches[1]
+          # A self-contained publish bundles the .NET runtime that ships with the installed SDK.
+          $runtime = "$(dotnet msbuild src/DiscordMcp -getProperty:BundledNETCoreAppPackageVersion)".Trim()
+          if ($runtime -cnotmatch '^\d+\.\d+\.\d+$') { throw "Unexpected .NET runtime version '$runtime'." }
+
+          $publish = 'false'
+          $skip = 'false'
+          $tag = ''
+          if ($env:EVENT -eq 'push') {
+            if ($env:REF_NAME -cmatch '^v(\d+\.\d+\.\d+(-[0-9A-Za-z.-]+)?)$') { $version = $Matches[1] }
+            else { throw "Tag '$env:REF_NAME' is not vX.Y.Z or vX.Y.Z-suffix." }
+            $tag = $env:REF_NAME
+            $publish = 'true'
+          } elseif ($env:EVENT -eq 'schedule' -or $env:PUBLISH_INPUT -eq 'true') {
+            $latest = gh release view --json tagName,body | ConvertFrom-Json
+            if ($LASTEXITCODE -ne 0 -or -not $latest) { throw 'There is no release to compare with. Push a tag vX.Y.Z first.' }
+            if ($latest.tagName -cmatch '^v(\d+)\.(\d+)\.(\d+)') { $version = "$($Matches[1]).$($Matches[2]).$([int]$Matches[3] + 1)" }
+            else { throw "The latest release's tag '$($latest.tagName)' is not vX.Y.Z." }
+
+            $reasons = @()
+            git diff --quiet $latest.tagName HEAD -- src Directory.Build.props Directory.Packages.props
+            if ($LASTEXITCODE -eq 1) { $reasons += "src/ or package versions changed since $($latest.tagName)" }
+            elseif ($LASTEXITCODE -ne 0) { throw "git diff against $($latest.tagName) failed." }
+            if ($latest.body -match 'NET runtime (\d+\.\d+\.\d+)' -and [version]$runtime -gt [version]$Matches[1]) {
+              $reasons += ".NET runtime $($Matches[1]) -> $runtime"
+            }
+
+            if ($reasons.Count -gt 0) {
+              $tag = "v$version"
+              git rev-parse --quiet --verify "refs/tags/$tag" | Out-Null
+              if ($LASTEXITCODE -eq 0) { throw "Tag $tag already exists." }
+              $publish = 'true'
+              $message = "Releasing $($tag): $($reasons -join '; ')."
+            } else {
+              $skip = 'true'
+              $message = "Nothing changed since $($latest.tagName) (.NET runtime $runtime): no release."
+            }
+            Write-Host $message
+            $message >> $env:GITHUB_STEP_SUMMARY
           } else {
-            throw "Tag '$env:REF_NAME' is not vX.Y.Z or vX.Y.Z-suffix."
+            $version = "0.0.0-dryrun.$env:GITHUB_RUN_NUMBER"
           }
+
           $prerelease = if ($version.Contains('-')) { 'true' } else { 'false' }
-          "version=$version" >> $env:GITHUB_OUTPUT
-          "prerelease=$prerelease" >> $env:GITHUB_OUTPUT
-          "name=discord-mcp-$version-win-x64" >> $env:GITHUB_OUTPUT
+          @(
+            "version=$version"
+            "tag=$tag"
+            "publish=$publish"
+            "skip=$skip"
+            "prerelease=$prerelease"
+            "runtime=$runtime"
+            "name=discord-mcp-$version-win-x64"
+          ) >> $env:GITHUB_OUTPUT
+          exit 0  # the runner fails the step on the last native exit code, e.g. git rev-parse not finding the tag
 
       - name: Test
+        if: steps.plan.outputs.skip != 'true'
         run: dotnet test DiscordMcp.slnx -c Release
 
       - name: Publish
+        if: steps.plan.outputs.skip != 'true'
         shell: pwsh
         env:
-          VERSION: ${{ steps.version.outputs.version }}
+          VERSION: ${{ steps.plan.outputs.version }}
         run: >
           dotnet publish src/DiscordMcp -c Release -r win-x64 --self-contained
           -p:PublishSingleFile=true -p:ContinuousIntegrationBuild=true -p:Version=$env:VERSION
           -o out/exe
 
       - name: Smoke test the exe (offline)
+        if: steps.plan.outputs.skip != 'true'
         shell: pwsh
         env:
-          VERSION: ${{ steps.version.outputs.version }}
+          VERSION: ${{ steps.plan.outputs.version }}
         run: ./.github/scripts/smoke-test.ps1 -Exe out/exe/DiscordMcp.exe -ExpectedVersion $env:VERSION
 
       - name: Package
+        if: steps.plan.outputs.skip != 'true'
         shell: pwsh
         env:
-          NAME: ${{ steps.version.outputs.name }}
+          NAME: ${{ steps.plan.outputs.name }}
         run: |
           $stage = New-Item -ItemType Directory -Path "out/$env:NAME"
           Copy-Item out/exe/DiscordMcp.exe, LICENSE, THIRD-PARTY-NOTICES.txt -Destination $stage
@@ -85,26 +146,29 @@ jobs:
           Get-ChildItem dist, $stage | Format-Table Name, Length
 
       - name: Attest build provenance
-        if: github.event_name == 'push'
+        if: steps.plan.outputs.publish == 'true'
         uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
         with:
           subject-path: |
-            dist/${{ steps.version.outputs.name }}.zip
+            dist/${{ steps.plan.outputs.name }}.zip
             out/exe/DiscordMcp.exe
 
       - name: Create the release
-        if: github.event_name == 'push'
+        if: steps.plan.outputs.publish == 'true'
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
-          TAG: ${{ github.ref_name }}
-          VERSION: ${{ steps.version.outputs.version }}
-          PRERELEASE: ${{ steps.version.outputs.prerelease }}
+          EVENT: ${{ github.event_name }}
+          TAG: ${{ steps.plan.outputs.tag }}
+          VERSION: ${{ steps.plan.outputs.version }}
+          RUNTIME: ${{ steps.plan.outputs.runtime }}
+          PRERELEASE: ${{ steps.plan.outputs.prerelease }}
         run: |
-          $notes = (Get-Content .github/release-notes.md -Raw).Replace('{version}', $env:VERSION).Replace('{repo}', $env:GH_REPO)
-          $arguments = @($env:TAG) + (Get-ChildItem dist).FullName + @(
-            '--verify-tag', '--title', "discord-mcp $env:VERSION", '--notes', $notes, '--generate-notes')
+          $notes = (Get-Content .github/release-notes.md -Raw).Replace('{version}', $env:VERSION).Replace('{repo}', $env:GH_REPO).Replace('{runtime}', $env:RUNTIME)
+          $arguments = @($env:TAG) + (Get-ChildItem dist).FullName + @('--title', "discord-mcp $env:VERSION", '--notes', $notes, '--generate-notes')
+          # A pushed tag must already exist; a scheduled release creates its tag on the commit it built.
+          if ($env:EVENT -eq 'push') { $arguments += '--verify-tag' } else { $arguments += @('--target', $env:GITHUB_SHA) }
           if ($env:PRERELEASE -eq 'true') { $arguments += '--prerelease' }
           gh release create @arguments
-          if ($LASTEXITCODE -ne 0) { throw "gh release create failed ($LASTEXITCODE)" }
+          if ($LASTEXITCODE -ne 0) { throw "gh release create failed ($LASTEXITCODE)." }

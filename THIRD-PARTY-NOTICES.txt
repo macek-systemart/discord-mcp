@@ -4,22 +4,24 @@ discord-mcp: third-party notices
 The release build of DiscordMcp.exe is self-contained. It bundles the .NET runtime and the NuGet packages listed
 below, and their licenses apply to those parts. discord-mcp itself is MIT licensed (see LICENSE).
 
-Component                                                  Version   License                 Source
----------------------------------------------------------  --------  ----------------------  ---------------------------------------------------
-.NET runtime (Microsoft.NETCore.App)                       10.0      MIT                     https://github.com/dotnet/runtime
-Microsoft.Extensions.* (Hosting, Http, Configuration,      10.0      MIT                     https://github.com/dotnet/dotnet
+Component                                                  License                 Source
+---------------------------------------------------------  ----------------------  ---------------------------------------------------
+.NET runtime (Microsoft.NETCore.App)                       MIT                     https://github.com/dotnet/runtime
+Microsoft.Extensions.* (Hosting, Http, Configuration,      MIT                     https://github.com/dotnet/dotnet
   DependencyInjection, Logging, Options, ...)
-Microsoft.Extensions.AI.Abstractions                       10.11     MIT                     https://github.com/dotnet/extensions
-System.Drawing.Common, System.Security.Cryptography.       10.0      MIT                     https://github.com/dotnet/dotnet
+Microsoft.Extensions.AI.Abstractions                       MIT                     https://github.com/dotnet/extensions
+System.Drawing.Common, System.Security.Cryptography.       MIT                     https://github.com/dotnet/dotnet
   ProtectedData, System.Diagnostics.EventLog,
   Microsoft.Win32.SystemEvents
-ModelContextProtocol, ModelContextProtocol.Core            2.4.0     Apache-2.0 (parts MIT)  https://github.com/modelcontextprotocol/csharp-sdk
-PdfPig                                                     0.1.16    Apache-2.0              https://github.com/UglyToad/PdfPig
+ModelContextProtocol, ModelContextProtocol.Core            Apache-2.0 (parts MIT)  https://github.com/modelcontextprotocol/csharp-sdk
+PdfPig                                                     Apache-2.0              https://github.com/UglyToad/PdfPig
+
+The exact versions are in Directory.Packages.props of the release's commit.
 
 The .NET runtime's own third-party notices:
 https://github.com/dotnet/runtime/blob/main/THIRD-PARTY-NOTICES.TXT
 
-The license and notice texts follow, verbatim from each project at the version above.
+The license and notice texts follow, verbatim from each project (ModelContextProtocol 2.4.0, PdfPig 0.1.16).
 
 ====================================================================================================
 .NET runtime and the Microsoft.* / System.* packages: MIT License
@@ -50,7 +52,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 ====================================================================================================
-ModelContextProtocol C# SDK 2.4.0: LICENSE
+ModelContextProtocol C# SDK: LICENSE
 ====================================================================================================
 
 The MCP project is undergoing a licensing transition from the MIT License to the Apache License, Version 2.0 ("Apache-2.0"). All new code and specification contributions to the project are licensed under Apache-2.0. Documentation contributions (excluding specifications) are licensed under CC-BY-4.0.
@@ -271,7 +273,7 @@ CC-BY-4.0. See https://creativecommons.org/licenses/by/4.0/legalcode for
 the full license text.
 
 ====================================================================================================
-ModelContextProtocol C# SDK 2.4.0: THIRD-PARTY-NOTICES.txt
+ModelContextProtocol C# SDK: THIRD-PARTY-NOTICES.txt
 ====================================================================================================
 
 The MCP C# SDK uses third-party libraries or other resources that may be
@@ -354,7 +356,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ====================================================================================================
-PdfPig 0.1.16: LICENSE
+PdfPig: LICENSE
 ====================================================================================================
 
                                  Apache License
@@ -614,7 +616,7 @@ CMaps for PDF Fonts (http://opensource.adobe.com/wiki/display/cmap/Downloads)
    THE POSSIBILITY OF SUCH DAMAGE.
 
 ====================================================================================================
-PdfPig 0.1.16: NOTICES.txt
+PdfPig: NOTICES.txt
 ====================================================================================================
 
 This product is derived from software developed at
