@@ -55,3 +55,20 @@ language.
 - `dotnet test` must be green.
 - For anything security-relevant, describe the threat you considered: sanitizer, guards, child processes, token
   handling.
+
+## Releasing
+
+Releases are built by [`release.yml`](.github/workflows/release.yml) on a GitHub Windows runner, never on a
+maintainer's machine.
+
+1. **Dry run.** Actions → **Release** → **Run workflow** on `main`. It runs the tests, publishes the self-contained
+   single-file exe and smoke-tests it offline with [`smoke-test.ps1`](.github/scripts/smoke-test.ps1): usage text,
+   both parser child processes and an MCP session, with an empty data folder so nothing can reach Discord. It does not
+   create a release.
+2. **Version.** Set `<Version>` in `Directory.Build.props` to the new version, so local builds report it too.
+3. **Tag.** `git tag v1.2.3` on that commit and `git push origin v1.2.3`. A tag with a suffix, such as `v1.2.3-rc.1`,
+   becomes a prerelease. The workflow runs the same steps, then attests build provenance for the zip and the exe and
+   creates the GitHub release with the zip and its `.sha256`. The release text comes from
+   [`.github/release-notes.md`](.github/release-notes.md), followed by notes generated from the commits.
+4. **Dependencies.** When a bundled package or its version changes, update `THIRD-PARTY-NOTICES.txt`. It ships in
+   the zip.

@@ -6,6 +6,7 @@
 
 English · [Čeština](README.cs.md)
 
+[![Release](https://img.shields.io/github/v/release/macek-systemart/discord-mcp?sort=semver)](https://github.com/macek-systemart/discord-mcp/releases/latest)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 ![.NET 10](https://img.shields.io/badge/.NET-10-512BD4?logo=dotnet&logoColor=white)
 ![Windows](https://img.shields.io/badge/platform-Windows-0078D6?logo=windows&logoColor=white)
@@ -99,30 +100,38 @@ flowchart LR
 
 ## Requirements
 
-- Windows 10 or 11 (the token is protected with DPAPI).
-- [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) to build it.
+- Windows 10 or 11, x64 (the token is protected with DPAPI).
 - Claude Desktop or another MCP client that can start a stdio server.
+- Only to build it yourself: the [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0). The release exe is
+  self-contained.
 
 ## Install
 
-1. **Build**
+1. **Get the exe.** Download `discord-mcp-<version>-win-x64.zip` from
+   [Releases](https://github.com/macek-systemart/discord-mcp/releases/latest) and extract it, for example to
+   `C:\Tools\discord-mcp`. The paths below use that folder; use your own. The exe is self-contained, so no .NET
+   install is needed. To check that it was built by this repository's release workflow, use the
+   [GitHub CLI](https://cli.github.com):
+   ```powershell
+   gh attestation verify C:\Tools\discord-mcp\DiscordMcp.exe --repo macek-systemart/discord-mcp
+   ```
+   **Or build it** with the .NET 10 SDK:
    ```powershell
    git clone https://github.com/macek-systemart/discord-mcp.git
    cd discord-mcp
-   dotnet publish src/DiscordMcp -c Release -o publish
+   dotnet publish src/DiscordMcp -c Release -o C:\Tools\discord-mcp
    ```
-   The server is `publish\DiscordMcp.exe`. The paths below use `C:\Tools\discord-mcp\publish`; use your own.
 
 2. **Store your token.** Run this yourself, in a terminal. Never paste the token into a chat or give it to an agent.
    ```powershell
-   C:\Tools\discord-mcp\publish\DiscordMcp.exe set-token
+   C:\Tools\discord-mcp\DiscordMcp.exe set-token
    ```
    Where to find the token: open Discord in a browser while signed in, press F12 → **Network**, pick any request to
    `discord.com/api` → **Request Headers** → copy the value of `authorization`.
 
 3. **Find the server ID.**
    ```powershell
-   C:\Tools\discord-mcp\publish\DiscordMcp.exe guilds
+   C:\Tools\discord-mcp\DiscordMcp.exe guilds
    ```
    It lists your servers and prints a ready-made config snippet.
 
@@ -136,17 +145,21 @@ flowchart LR
 5. **Add it to Claude Desktop.** In `%APPDATA%\Claude\claude_desktop_config.json`, under `mcpServers`:
    ```json
    "discord": {
-     "command": "C:\\Tools\\discord-mcp\\publish\\DiscordMcp.exe",
+     "command": "C:\\Tools\\discord-mcp\\DiscordMcp.exe",
      "env": { "DISCORD_GUILD_ID": "<server id>" }
    }
    ```
    The token does **not** go into this file. Then restart Claude Desktop.
 
    For Claude Code:
-   `claude mcp add discord -e DISCORD_GUILD_ID=<server id> -- C:\Tools\discord-mcp\publish\DiscordMcp.exe`
+   `claude mcp add discord -e DISCORD_GUILD_ID=<server id> -- C:\Tools\discord-mcp\DiscordMcp.exe`
 
 Without a stored token the server still starts, and every tool answers with what to do. On another Windows install
 (for example a dual boot), run `set-token` again: DPAPI does not carry over.
+
+**Updating.** Quit Claude Desktop, which keeps the exe open. Replace `DiscordMcp.exe` with the new one, or publish
+again into the same folder, then start Claude Desktop again. The token and state live in
+`%LOCALAPPDATA%\discord-mcp` and stay as they are.
 
 ## Configuration
 
@@ -233,7 +246,11 @@ The last message tries to smuggle in a line that looks as if you wrote it. The l
 - **"Access stopped" / 401.** The token stopped working (you signed out or changed your password), or Discord wants
   you to verify the account. Open Discord in a browser, verify if asked, and run `set-token` again. The running
   server picks up the new token within a few seconds, with no restart needed.
-- **`dotnet publish` fails on a locked file.** The MCP client is running the exe. Quit it first.
+- **Replacing the exe, or `dotnet publish`, fails on a locked file.** The MCP client is running the exe. Quit it
+  first.
+- **Windows warns about the downloaded exe.** It is not code-signed. Check its attestation (see [Install](#install)),
+  then remove the download mark with `Unblock-File C:\Tools\discord-mcp\DiscordMcp.exe`. If Windows still
+  blocks it, build it yourself.
 
 ## Development
 
@@ -243,6 +260,9 @@ dotnet publish src/DiscordMcp -c Release -o publish
 ```
 
 - **Tests** use only fake HTTP and synthetic fixtures. Never point them, or the exe, at the real Discord.
+- **Releases.** Pushing a tag `vX.Y.Z` runs [`release.yml`](.github/workflows/release.yml): the tests, a
+  self-contained single-file build, an offline smoke test of that exe, then a GitHub release with the zip, its
+  SHA-256 and build provenance. See [`CONTRIBUTING.md`](CONTRIBUTING.md#releasing).
 - **Docs.** The design contract is in [`docs/IMPLEMENTATION.md`](docs/IMPLEMENTATION.md). How to contribute, and
   how to add a language, is in [`CONTRIBUTING.md`](CONTRIBUTING.md).
 - **Stack.** C# / .NET 10, the official

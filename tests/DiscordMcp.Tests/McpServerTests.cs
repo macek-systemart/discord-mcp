@@ -112,6 +112,13 @@ public class McpServerTests
     private static string Text(CallToolResult result) => ToolsData.Text(result);
 
     [Fact]
+    public void The_server_reports_the_build_version_without_the_commit_suffix()
+    {
+        Assert.Matches(@"^\d+\.\d+\.\d+(-[0-9A-Za-z.-]+)?$", AppHost.Version);
+        Assert.Equal(typeof(AppHost).Assembly.GetName().Version!.ToString(3), AppHost.Version.Split('-')[0]);
+    }
+
+    [Fact]
     public async Task Tools_list_names_schemas_and_read_only_annotations()
     {
         await using var host = await McpTestHost.StartAsync(Api());

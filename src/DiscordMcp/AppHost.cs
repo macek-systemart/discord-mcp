@@ -1,3 +1,4 @@
+using System.Reflection;
 using DiscordMcp.Discord;
 using DiscordMcp.Formatting;
 using DiscordMcp.Http;
@@ -14,6 +15,11 @@ namespace DiscordMcp;
 
 public static class AppHost
 {
+    /// <summary>The assembly's version (from the release tag), without the <c>+commit</c> suffix the SDK appends.</summary>
+    internal static string Version { get; } =
+        typeof(AppHost).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion.Split('+')[0]
+        ?? "0.0.0";
+
     /// <summary>
     /// Model-facing, so English in every language; it names the active self marker and the configured time zone,
     /// which is why it is built when the server starts instead of being a constant.
@@ -60,7 +66,7 @@ public static class AppHost
         builder.Services
             .AddMcpServer(o =>
             {
-                o.ServerInfo = new Implementation { Name = "discord", Title = "Discord (read-only)", Version = "0.1.0" };
+                o.ServerInfo = new Implementation { Name = "discord", Title = "Discord (read-only)", Version = Version };
                 o.ServerInstructions = ServerInstructions;
             })
             .WithStdioServerTransport()

@@ -6,6 +6,7 @@
 
 [English](README.md) · Čeština
 
+[![Verze](https://img.shields.io/github/v/release/macek-systemart/discord-mcp?sort=semver)](https://github.com/macek-systemart/discord-mcp/releases/latest)
 [![Licence: MIT](https://img.shields.io/badge/licence-MIT-blue.svg)](LICENSE)
 ![.NET 10](https://img.shields.io/badge/.NET-10-512BD4?logo=dotnet&logoColor=white)
 ![Windows](https://img.shields.io/badge/platforma-Windows-0078D6?logo=windows&logoColor=white)
@@ -96,30 +97,37 @@ flowchart LR
 
 ## Požadavky
 
-- Windows 10 nebo 11 (token chrání DPAPI).
-- [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) na build.
+- Windows 10 nebo 11, x64 (token chrání DPAPI).
 - Claude Desktop nebo jiný MCP klient, který umí spustit stdio server.
+- Jen pro vlastní build: [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0). Exe z release je
+  self-contained.
 
 ## Instalace
 
-1. **Build**
+1. **Stáhni exe.** Z [Releases](https://github.com/macek-systemart/discord-mcp/releases/latest) stáhni
+   `discord-mcp-<verze>-win-x64.zip` a rozbal ho, třeba do `C:\Tools\discord-mcp`. Cesty níže používají tuhle
+   složku; dosaď svou. Exe je self-contained, .NET instalovat nemusíš. Že ho postavil release workflow tohohle repa,
+   ověříš přes [GitHub CLI](https://cli.github.com):
+   ```powershell
+   gh attestation verify C:\Tools\discord-mcp\DiscordMcp.exe --repo macek-systemart/discord-mcp
+   ```
+   **Nebo si ho postav** s .NET 10 SDK:
    ```powershell
    git clone https://github.com/macek-systemart/discord-mcp.git
    cd discord-mcp
-   dotnet publish src/DiscordMcp -c Release -o publish
+   dotnet publish src/DiscordMcp -c Release -o C:\Tools\discord-mcp
    ```
-   Server je `publish\DiscordMcp.exe`. Cesty níže používají `C:\Tools\discord-mcp\publish`; dosaď svou.
 
 2. **Ulož token.** Spusť sám v terminálu. Token nikdy nevkládej do chatu ani ho nedávej agentovi.
    ```powershell
-   C:\Tools\discord-mcp\publish\DiscordMcp.exe set-token
+   C:\Tools\discord-mcp\DiscordMcp.exe set-token
    ```
    Kde ho najdeš: v prohlížeči s přihlášeným Discordem F12 → **Network** → libovolný request na `discord.com/api` →
    **Request Headers** → hodnota `authorization`.
 
 3. **Zjisti ID serveru.**
    ```powershell
-   C:\Tools\discord-mcp\publish\DiscordMcp.exe guilds
+   C:\Tools\discord-mcp\DiscordMcp.exe guilds
    ```
    Vypíše tvoje servery a hotový snippet do konfigurace.
 
@@ -133,17 +141,20 @@ flowchart LR
 5. **Přidej ho do Claude Desktopu.** V `%APPDATA%\Claude\claude_desktop_config.json` pod `mcpServers`:
    ```json
    "discord": {
-     "command": "C:\\Tools\\discord-mcp\\publish\\DiscordMcp.exe",
+     "command": "C:\\Tools\\discord-mcp\\DiscordMcp.exe",
      "env": { "DISCORD_GUILD_ID": "<ID serveru>", "Discord__Language": "cs" }
    }
    ```
    Token do tohohle souboru **nepatří**. Pak restartuj Claude Desktop.
 
    Pro Claude Code:
-   `claude mcp add discord -e DISCORD_GUILD_ID=<ID serveru> -e Discord__Language=cs -- C:\Tools\discord-mcp\publish\DiscordMcp.exe`
+   `claude mcp add discord -e DISCORD_GUILD_ID=<ID serveru> -e Discord__Language=cs -- C:\Tools\discord-mcp\DiscordMcp.exe`
 
 Bez uloženého tokenu server běží dál a každý tool odpoví, co udělat. Na jiné instalaci Windows (třeba při dual bootu)
 spusť `set-token` znovu, DPAPI se nepřenáší.
+
+**Aktualizace.** Ukonči Claude Desktop, který drží exe otevřené. Nahraď `DiscordMcp.exe` novým, nebo publikuj znovu
+do stejné složky, a Claude Desktop zase spusť. Token a stav jsou v `%LOCALAPPDATA%\discord-mcp` a zůstanou.
 
 ## Konfigurace
 
@@ -230,7 +241,11 @@ Poslední zpráva se snaží podstrčit řádek, který vypadá, jako bys ho psa
 - **„Přístup zastaven“ / 401.** Token přestal platit (odhlášení, změna hesla), nebo Discord chce ověření účtu.
   Otevři Discord v prohlížeči, případně se ověř, a spusť znovu `set-token`. Běžící server nový token načte do pár
   sekund, restart není potřeba.
-- **`dotnet publish` selže na zamčeném souboru.** Exe drží spuštěný MCP klient, nejdřív ho ukonči.
+- **Výměna exe nebo `dotnet publish` selže na zamčeném souboru.** Exe drží spuštěný MCP klient, nejdřív ho
+  ukonči.
+- **Windows varuje před staženým exe.** Exe není podepsané. Ověř jeho attestation (viz [Instalace](#instalace)) a pak
+  odstraň značku stažení: `Unblock-File C:\Tools\discord-mcp\DiscordMcp.exe`. Když ho Windows blokuje dál,
+  postav si ho sám.
 
 ## Vývoj
 
@@ -240,6 +255,9 @@ dotnet publish src/DiscordMcp -c Release -o publish
 ```
 
 - **Testy** používají jen fake HTTP a syntetické fixtures. Nikdy je ani exe nepouštěj proti skutečnému Discordu.
+- **Releasy.** Push tagu `vX.Y.Z` spustí [`release.yml`](.github/workflows/release.yml): testy, self-contained
+  single-file build, offline smoke test toho exe a pak GitHub release se zipem, jeho SHA-256 a build provenance.
+  Viz [`CONTRIBUTING.md`](CONTRIBUTING.md#releasing).
 - **Dokumentace.** Návrhový kontrakt je v [`docs/IMPLEMENTATION.md`](docs/IMPLEMENTATION.md). Jak přispět a jak
   přidat jazyk popisuje [`CONTRIBUTING.md`](CONTRIBUTING.md).
 - **Technologie.** C# / .NET 10, oficiální SDK
